@@ -9,7 +9,7 @@ update_user,
 delete_user
 )
 
-from controllers.responses import (
+from controllers.user import(
     save_user_details,
     get_user_details,
     update_user_details,
@@ -30,10 +30,24 @@ from controllers.medical import (
     delete_medical_record
 )
 
-from core.static import serve_static
+# from core.static import serve_static
 from core.responses import send_404
 from core.middleweare import add_cors_headers
 
+# FRONTEND_ROUTES = {
+#     "/", "/signin", "/user-input", "/daily-activity", "/medical-records"
+# }
+
+# def handle_ui_routes(handler, path):
+#     if path in FRONTEND_ROUTES:
+#         serve_static(handler, "frontend/pages/index.html")
+#         return True
+
+#     if path.startswith("/frontend/"):
+#         serve_static(handler, path.lstrip("/"))
+#         return True
+
+#     return False
 
 class HealthRouter(BaseHTTPRequestHandler):
 
@@ -46,8 +60,8 @@ class HealthRouter(BaseHTTPRequestHandler):
 def do_GET(self):
     path = urlparse(self.path).path
 
-    if handle_ui_router(self, path):
-        return
+    # if handle_ui_router(self, path):
+    #     return
     
     # AUTH
     if path == "/api/auth/user":
