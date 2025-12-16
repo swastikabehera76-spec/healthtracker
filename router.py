@@ -1,53 +1,15 @@
-from datetime import datetime
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
+from datetime import datetime
 
-from controllers.auth import ( 
-login_user, 
-register_user, 
-update_user,
-delete_user
+from controllers.user import (
+    # create_user_details,
+    get_all_users,
 )
 
-from controllers.user import(
-    save_user_details,
-    get_user_details,
-    update_user_details,
-    delete_user_details
-)
-
-from controllers.activity import (
-    add_activity_record,
-    get_activity_records,
-    update_activity_record,
-    delete_activity_record
-)
-
-from controllers.medical import (
-    add_medical_record,
-    get_medical_records,
-    update_medical_record,
-    delete_medical_record
-)
-
-# from core.static import serve_static
 from core.responses import send_404
-from core.middleweare import add_cors_headers
+from core.middleware import add_cors_headers
 
-# FRONTEND_ROUTES = {
-#     "/", "/signin", "/user-input", "/daily-activity", "/medical-records"
-# }
-
-# def handle_ui_routes(handler, path):
-#     if path in FRONTEND_ROUTES:
-#         serve_static(handler, "frontend/pages/index.html")
-#         return True
-
-#     if path.startswith("/frontend/"):
-#         serve_static(handler, path.lstrip("/"))
-#         return True
-
-#     return False
 
 class HealthRouter(BaseHTTPRequestHandler):
 
@@ -56,105 +18,31 @@ class HealthRouter(BaseHTTPRequestHandler):
         add_cors_headers(self)
         self.end_headers()
 
-# READ
-def do_GET(self):
-    path = urlparse(self.path).path
+    # ------------------------
+    # READ USER (GET)
+    # ------------------------
+    def do_GET(self):
+        path = urlparse(self.path).path
+        print("PATH:", path)
 
-    # if handle_ui_router(self, path):
-    #     return
-    
-    # AUTH
-    if path == "/api/auth/user":
-        return get_user_details(self)
-    
-    # USER PERSONAL DETAILS 
-    if path == "/api/details":
-        return get_user_details(self)
-    
-    # DAILY ACTIVITY 
-    if path == "/api/activity":
-        return get_activity_records(self)
-    
-    # MEDICAL 
-    if path == "/api/medical":
-        return get_medical_records(self)
-    
-    return send_404(self)
+        if path == "/api/users":
+            return get_all_users(self)
 
-# CREATE 
-def do_POST(self):
+        return send_404(self)
 
-    if self.path == "/api/auth/login":
-        return login_user(self)
-    
-    if self.path == "/api/auth/register":
-        return register_user(self)
+    # # ------------------------
+    # # CREATE USER (POST)
+    # # ------------------------
+    # def do_POST(self):
+    #     if self.path == "/api/user/details":
+    #         return create_user_details(self)
 
-        # USER DETAILS
-    if self.path == "/api/user/details":
-        return save_user_details(self)
+    #     return send_404(self)
 
-     # ACTIVITY
-    if self.path == "/api/activity":
-        return add_activity_record(self)
+    # ------------------------
+    # LOGGER
+    # ------------------------
+    def log_message(self, format, *args):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{timestamp}] [Server] {format % args}")
 
-    # MEDICAL
-    if self.path == "/api/medical":
-        return add_medical_record(self)
-
-    return send_404(self)
-
-
-# UPDATE 
-def do_PUT(self):
-    path = self.path
-
-    # AUTH UPDATE
-    if path == "/api/auth/update":
-        return update_user(self)
-
-    # USER DETAILS UPDATE
-    if path == "/api/user/details":
-        return update_user_details(self)
-
-    # ACTIVITY UPDATE
-    if path.startswith("/api/activity/"):
-        record_id = int(path.split("/")[-1])
-        return update_activity_record(self, record_id)
-
-    # MEDICAL UPDATE
-    if path.startswith("/api/medical/"):
-        record_id = int(path.split("/")[-1])
-        return update_medical_record(self, record_id)
-
-    return send_404(self)
-
-
-# DELETE 
-def do_DELETE(self):
-    path = self.path
-
-    # AUTH DELETE
-    if path == "/api/auth/delete":
-        return delete_user(self)
-
-    # USER DETAILS DELETE
-    if path == "/api/user/details":
-        return delete_user_details(self)
-
-    # DELETE ACTIVITY
-    if path.startswith("/api/activity/"):
-        record_id = int(path.split("/")[-1])
-        return delete_activity_record(self, record_id)
-
-    # DELETE MEDICAL
-    if path.startswith("/api/medical/"):
-        record_id = int(path.split("/")[-1])
-        return delete_medical_record(self, record_id)
-
-    return send_404(self)
-
-# LOGGER 
-def log_messager(self, format, *args):
-    timestamp = datetime.new().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] [Server] {format % args}")
